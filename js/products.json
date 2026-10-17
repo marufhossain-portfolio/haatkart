@@ -407,7 +407,7 @@
       "badge": "FLASH SALE",
       "rating": 4.7,
       "reviews": 340,
-      "img": null,
+      "img": "https://raw.githubusercontent.com/marufhossain-portfolio/haatkart/main/assets/img/el-001.jpg?v=08ea59a",
       "desc": "Energy-saving 12W LED bulb with 6500K cool daylight. 15,000-hour rated life. [admin-test edit]",
       "specs": {
         "Wattage": "12 W",
