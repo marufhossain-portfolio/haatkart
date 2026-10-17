@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HaatKart - Bangladesh's Online Marketplace for Home & Grocery</title>
+<meta name="description" content="Shop groceries, lubricants, electrical accessories and home appliances online. 100% authentic products, fast delivery across Dhaka.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230B7A5B'/><text x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>H</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header id="site-header"></header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="hero-badge">🚚 Free delivery over ৳2,000 · Dhaka city</span>
+        <h1>Bangladesh-er joto dorkar,<br>ek jaygay.</h1>
+        <p>Rice theke engine oil, LED bulb theke rice cooker - 100% authentic product, brand warranty ar door-step delivery niye. Sob kichu ek e-order-e.</p>
+        <div class="hero-cta">
+          <a class="btn btn-accent btn-lg" href="shop.html">🛍️ Ekhon-i Kinte Shuru Korun</a>
+          <a class="btn btn-ghost btn-lg" style="color:#fff;border-color:rgba(255,255,255,.4)" href="#brands">Category Dekhun</a>
+        </div>
+        <div class="hero-stats">
+          <div><b>4</b><span>Product Category</span></div>
+          <div><b>35+</b><span>Product Items</span></div>
+          <div><b>100%</b><span>Authentic</span></div>
+          <div><b>24h</b><span>Dhaka Delivery</span></div>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="grid-tiles">
+          <div class="tile">🌾</div><div class="tile">🛢️</div><div class="tile">💡</div>
+          <div class="tile">🍳</div><div class="tile">🔌</div><div class="tile">🍚</div>
+          <div class="tile">⚡</div><div class="tile">🫙</div><div class="tile">🛒</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUE PROPS -->
+  <div class="wrap">
+    <div class="props">
+      <div class="prop"><div class="prop-ico">💰</div><div><h3>Competitive Price</h3><p>Best price, everyday - combo pack e aro sasta.</p></div></div>
+      <div class="prop"><div class="prop-ico">✅</div><div><h3>Authentic Products</h3><p>100% genuine, brand warranty niye.</p></div></div>
+      <div class="prop"><div class="prop-ico">🔒</div><div><h3>Easy & Secure Payment</h3><p>bKash, Nagad, card ba Cash on Delivery.</p></div></div>
+      <div class="prop"><div class="prop-ico">🚚</div><div><h3>Fast Delivery</h3><p>Dhaka city-wide, rapid door-step delivery.</p></div></div>
+    </div>
+  </div>
+
+  <!-- FREE DELIVERY BANNER -->
+  <section class="section tight">
+    <div class="wrap">
+      <div class="banner">
+        <div>
+          <h2>🛒 Grocery Combo Orders-e Free Delivery</h2>
+          <p>৳2,000 er uporer sobi order-e delivery completely free. Dhaka city-wide.</p>
+        </div>
+        <a class="btn btn-accent btn-lg" href="shop.html?cat=Food%20%26%20Groceries">Combo Pack Dekhun</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEST SELLERS -->
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="line"></div>
+          <h2>🔥 Best Sellers</h2>
+          <p>Customer-der sokaler choice - ei week-e sobcheye beshi bikri howa product gulo.</p>
+        </div>
+        <a class="link-more" href="shop.html?sort=rating">Shob Dekhun →</a>
+      </div>
+      <div class="grid" id="best-sellers"><div class="loader"><i></i></div></div>
+    </div>
+  </section>
+
+  <!-- HOT DEALS (tabs) -->
+  <section class="section" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="line"></div>
+          <h2>Today's Hot Deals</h2>
+          <p>Shudhu ajker moto discount - stock thakle-i pabe.</p>
+        </div>
+      </div>
+      <div class="tabs" id="deal-tabs">
+        <button class="tab on" data-tab="all">All Products</button>
+        <button class="tab" data-tab="Food &amp; Groceries">🌾 Groceries</button>
+        <button class="tab" data-tab="Lubricants">🛢️ Lubricants</button>
+        <button class="tab" data-tab="Electrical">💡 Electrical</button>
+        <button class="tab" data-tab="Home Appliance">🍳 Home Appliance</button>
+      </div>
+      <div class="grid" id="deals"><div class="loader"><i></i></div></div>
+    </div>
+  </section>
+
+  <!-- WHY ORDER -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head center" style="justify-content:center;text-align:center">
+        <div>
+          <div class="line" style="margin:0 auto 12px"></div>
+          <h2>Keno HaatKart theke kinben?</h2>
+          <p>Order dewa ekhon aro shohoj.</p>
+        </div>
+      </div>
+      <div class="props" style="margin-top:0">
+        <div class="prop"><div class="prop-ico">📞</div><div><h3>Customer Support</h3><p>Toll-free helpline 08000-555777 - amra khushi help korbo.</p></div></div>
+        <div class="prop"><div class="prop-ico">🛡️</div><div><h3>Authentic Products</h3><p>Sob product directly trusted source theke ashe.</p></div></div>
+        <div class="prop"><div class="prop-ico">🚚</div><div><h3>Fast Home Delivery</h3><p>Dhaka city-wide prompt ar reliable delivery.</p></div></div>
+        <div class="prop"><div class="prop-ico">↩️</div><div><h3>Easy Return</h3><p>7 din er moddhe sohoj return ar exchange.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRANDS -->
+  <section class="section" id="brands" style="background:#fff;border-top:1px solid var(--line)">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="line"></div>
+          <h2>Our Brands</h2>
+          <p>Char-ta brand, char-rokom product line - sob kichu ek e jaygay.</p>
+        </div>
+      </div>
+      <div class="brands">
+        <a class="brand-card reveal" href="shop.html?cat=Food%20%26%20Groceries">
+          <div class="brand-ico">🌾</div><h3>Shuddha</h3><p>Food & Groceries</p>
+          <span class="count" data-count="Food &amp; Groceries">·</span>
+        </a>
+        <a class="brand-card reveal" href="shop.html?cat=Lubricants">
+          <div class="brand-ico">🛢️</div><h3>PowerLube</h3><p>Lubricants</p>
+          <span class="count" data-count="Lubricants">·</span>
+        </a>
+        <a class="brand-card reveal" href="shop.html?cat=Electrical">
+          <div class="brand-ico">💡</div><h3>Voltix</h3><p>Electrical</p>
+          <span class="count" data-count="Electrical">·</span>
+        </a>
+        <a class="brand-card reveal" href="shop.html?cat=Home%20Appliance">
+          <div class="brand-ico">🍳</div><h3>HomeCraft</h3><p>Home Appliance</p>
+          <span class="count" data-count="Home Appliance">·</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="js/data-fallback.js"></script>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadProducts();
+  const P = HK.products;
+
+  // best sellers: highest rating first
+  const best = [...P].sort((a,b) => (b.rating||0) - (a.rating||0)).slice(0, 8);
+  document.getElementById('best-sellers').innerHTML = gridHTML(best);
+
+  // deals grid + tabs
+  const dealsEl = document.getElementById('deals');
+  function renderDeals(cat) {
+    const list = cat === 'all'
+      ? [...P].filter(p => p.old > p.price).slice(0, 8)
+      : P.filter(p => p.cat === cat).slice(0, 8);
+    dealsEl.innerHTML = gridHTML(list.length ? list : P.slice(0, 8));
+    observeReveals();
+  }
+  renderDeals('all');
+  document.getElementById('deal-tabs').addEventListener('click', e => {
+    const t = e.target.closest('.tab'); if (!t) return;
+    document.querySelectorAll('#deal-tabs .tab').forEach(x => x.classList.remove('on'));
+    t.classList.add('on');
+    renderDeals(t.dataset.tab);
+  });
+
+  // brand counts
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const n = P.filter(p => p.cat === el.dataset.count).length;
+    el.textContent = n + ' products';
+  });
+
+  observeReveals();
+});
+</script>
+</body>
+</html>

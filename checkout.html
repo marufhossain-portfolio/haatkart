@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checkout - HaatKart</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230B7A5B'/><text x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>H</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header id="site-header"></header>
+
+<section class="page-head">
+  <div class="wrap">
+    <h1>Checkout</h1>
+    <div class="crumbs"><a href="index.html">Home</a><span>/</span><a href="cart.html">Cart</a><span>/</span><span>Checkout</span></div>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="checkout">
+    <!-- FORM -->
+    <form class="panel" id="co-form" novalidate>
+      <h3>🚚 Delivery Information</h3>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label>Full Name <span class="req">*</span></label>
+          <input name="name" required placeholder="Tomar purno naam"></div>
+        <div class="field"><label>Mobile Number <span class="req">*</span></label>
+          <input name="phone" required inputmode="tel" placeholder="01XXXXXXXXX"></div>
+        <div class="field"><label>Email</label>
+          <input name="email" type="email" placeholder="tomar@email.com"></div>
+        <div class="field"><label>District / City <span class="req">*</span></label>
+          <select name="district" required>
+            <option value="">Select korun</option>
+            <option>Dhaka</option><option>Chattogram</option><option>Rajshahi</option>
+            <option>Khulna</option><option>Barishal</option><option>Sylhet</option>
+            <option>Rangpur</option><option>Mymensingh</option><option>Other</option>
+          </select></div>
+        <div class="field full"><label>Full Address <span class="req">*</span></label>
+          <textarea name="address" required placeholder="House, road, area, landmark"></textarea></div>
+        <div class="field full"><label>Order Note (optional)</label>
+          <textarea name="note" placeholder="Delivery niye kono instruction thakle likhen"></textarea></div>
+      </div>
+
+      <h3 style="margin-top:30px">💳 Payment Method</h3>
+      <div class="pay-opts" style="margin-top:14px">
+        <label class="pay-opt on"><input type="radio" name="pay" value="Cash on Delivery" checked>
+          <div><b>💵 Cash on Delivery</b><span>Product paien tokhon taka diben. Sob jelay available.</span></div></label>
+        <label class="pay-opt"><input type="radio" name="pay" value="bKash">
+          <div><b>📱 bKash</b><span>Order confirm korar por bKash number paba. Send Money korte hobe.</span></div></label>
+        <label class="pay-opt"><input type="radio" name="pay" value="Nagad">
+          <div><b>📱 Nagad</b><span>Order confirm korar por Nagad number paba.</span></div></label>
+        <label class="pay-opt"><input type="radio" name="pay" value="Rocket">
+          <div><b>📱 Rocket</b><span>DBBL Rocket number-e payment korte parben.</span></div></label>
+      </div>
+
+      <button class="btn btn-lg btn-block" type="submit" style="margin-top:24px" id="place-btn">
+        ✅ Order Confirm Korun
+      </button>
+      <p class="small muted center" style="margin:12px 0 0">
+        Place korle tumi amader terms & privacy policy manbe.
+      </p>
+    </form>
+
+    <!-- SUMMARY -->
+    <aside id="sum-host"></aside>
+  </div>
+</main>
+
+<!-- SUCCESS MODAL -->
+<div class="overlay" id="ok-modal">
+  <div class="modal">
+    <div class="tick">✓</div>
+    <h2>Order Successful!</h2>
+    <p>Dhonnobad! Tomar order amra peye gechi. Amra shigro-i confirm korbo.</p>
+    <div class="order-id" id="ok-id">HK000000-0000</div>
+    <p class="small" id="ok-detail"></p>
+    <div class="modal-acts">
+      <a class="btn" id="ok-mail" href="#">✉️ Email-e Pathun</a>
+      <a class="btn btn-accent" id="ok-wa" href="#" target="_blank" rel="noopener">✆ WhatsApp-e Pathun</a>
+      <button class="btn btn-ghost" id="ok-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<footer id="site-footer"></footer>
+
+<script src="js/data-fallback.js"></script>
+<script src="js/app.js"></script>
+<script>
+const STORE_EMAIL = () => HK.settings.email;   // admin panel theke update hoy
+const STORE_WA = () => HK.settings.whatsapp;   // WhatsApp number (international format)
+
+function summary() {
+  const lines = Cart.lines();
+  const sub = Cart.subtotal();
+  const ship = sub === 0 ? 0 : (sub >= HK.settings.freeAbove ? 0 : HK.settings.shipFee);
+  const vat = sub * (HK.settings.vat / 100);
+  const total = sub + ship + vat;
+
+  document.getElementById('sum-host').innerHTML = lines.length ? `
+  <div class="summary">
+    <h3>Order Summary</h3>
+    ${lines.map(i => `
+      <div style="display:flex;gap:11px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)">
+        <div class="cart-thumb" style="width:48px;height:48px;font-size:20px">${productImg(i.p)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(i.p.name)}</div>
+          <div class="small muted">× ${i.qty}</div>
+        </div>
+        <div class="price tk" style="font-size:14px">${(i.p.price * i.qty).toLocaleString('en-BD')}</div>
+      </div>`).join('')}
+    <div class="sum-row"><span>Subtotal</span><b class="tk">${sub.toLocaleString('en-BD')}</b></div>
+    <div class="sum-row"><span>Delivery</span><b>${ship === 0 ? '<span style="color:var(--success)">Free</span>' : '<span class="tk">' + ship + '</span>'}</b></div>
+    <div class="sum-row"><span>VAT (${HK.settings.vat}%)</span><b class="tk">${Math.round(vat).toLocaleString('en-BD')}</b></div>
+    <div class="sum-total"><span>Total</span><span class="tk">${Math.round(total).toLocaleString('en-BD')}</span></div>
+  </div>` : `<div class="empty"><div class="ico">🛒</div><h3>Cart khali</h3>
+    <p>Prothome kichu add korun.</p><a class="btn" href="shop.html" style="margin-top:12px">Shop-e Jan</a></div>`;
+
+  return { lines, sub, ship, vat, total };
+}
+
+// payment option highlight
+document.addEventListener('change', e => {
+  if (e.target.name === 'pay') {
+    document.querySelectorAll('.pay-opt').forEach(o => o.classList.remove('on'));
+    e.target.closest('.pay-opt').classList.add('on');
+  }
+});
+
+document.addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target;
+  if (!f.reportValidity()) return;
+
+  const { lines, total } = summary();
+  if (!lines.length) { toast('Cart khali - age kichu add korun', 'err'); return; }
+
+  const d = Object.fromEntries(new FormData(f).entries());
+  const oid = orderId();
+
+  // save order locally (customer-side record)
+  const orders = store.get('hk_orders', []);
+  orders.push({ id: oid, at: new Date().toISOString(), ...d, items: lines.map(i => ({ id: i.id, name: i.p.name, qty: i.qty, price: i.p.price })), total: Math.round(total) });
+  store.set('hk_orders', orders);
+
+  // order text for email / WhatsApp handoff
+  const itemText = lines.map(i => `  - ${i.p.name} x${i.qty} = ৳${(i.p.price * i.qty).toLocaleString('en-BD')}`).join('\n');
+  const text =
+`New Order - ${oid}
+------------------------
+Name: ${d.name}
+Phone: ${d.phone}
+Email: ${d.email || '-'}
+District: ${d.district}
+Address: ${d.address}
+Payment: ${d.pay}
+${d.note ? 'Note: ' + d.note + '\n' : ''}
+Items:
+${itemText}
+------------------------
+Total: ৳${Math.round(total).toLocaleString('en-BD')}`;
+
+  document.getElementById('ok-id').textContent = oid;
+  document.getElementById('ok-detail').textContent =
+    `${lines.length} ta product · Total ৳${Math.round(total).toLocaleString('en-BD')} · Payment: ${d.pay}`;
+
+  document.getElementById('ok-mail').href =
+    `mailto:${STORE_EMAIL()}?subject=${encodeURIComponent('Order ' + oid + ' - ' + d.name)}&body=${encodeURIComponent(text)}`;
+  document.getElementById('ok-wa').href =
+    `https://wa.me/${STORE_WA()}?text=${encodeURIComponent(text)}`;
+
+  document.getElementById('ok-modal').classList.add('on');
+  Cart.clear();
+  store.set('hk_coupon', null);
+  Cart.badge();
+  summary();
+});
+
+document.getElementById('ok-close').onclick = () => {
+  document.getElementById('ok-modal').classList.remove('on');
+  location.href = 'index.html';
+};
+
+document.addEventListener('DOMContentLoaded', async () => { await loadProducts(); summary(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Panel - HaatKart</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230B7A5B'/><text x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>H</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="topbar"><div class="wrap"><div>🔐 <b>Admin Panel</b> - shudhu tomader jonno</div>
+  <div><a href="index.html">← Store-e Firo</a></div></div></div>
+  <div class="header"><div class="wrap header-main">
+    <a class="logo" href="admin.html"><span class="logo-mark">H</span>Haat<span>Kart</span> <span class="pill neutral" style="margin-left:8px">ADMIN</span></a>
+    <div class="head-actions" style="margin-left:auto">
+      <span class="small muted" id="whoami"></span>
+      <button class="btn btn-ghost btn-sm" id="logout">Logout</button>
+    </div>
+  </div></div>
+</header>
+
+<!-- ============ LOGIN ============ -->
+<section id="view-login" class="admin-login">
+  <div class="login-card">
+    <h2>🔐 Admin Login</h2>
+    <p class="muted">Ei panel-e product name, price, image, stock - sob kichu update korte parbe. Customers er kono write access nei.</p>
+
+    <div class="field" style="margin-top:20px">
+      <label>GitHub Username / Owner</label>
+      <input id="in-owner" placeholder="marufhossain-portfolio" autocomplete="username">
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>Repository Name</label>
+      <input id="in-repo" placeholder="haatkart">
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>GitHub Personal Access Token <span class="req">*</span></label>
+      <input id="in-token" type="password" placeholder="github_pat_..." autocomplete="current-password">
+      <span class="hint">Token tomar browser-e sessionStorage-e thake, repo-te save hoy na. Tab bondho korlei muche jay.</span>
+    </div>
+
+    <div class="secure">
+      <b>⚠️ Token ki rokom lagbe?</b><br>
+      GitHub → Settings → Developer settings → <b>Fine-grained tokens</b> → Generate new token.<br>
+      • Repository access: <b>Only select repositories</b> → ei repo-ta select<br>
+      • Permissions → <b>Contents: Read and write</b> (shudhu etai)<br>
+      • Expiration: 30 din (naror age notun banabe)
+    </div>
+
+    <button class="btn btn-lg btn-block" id="btn-login">Login korun</button>
+    <p class="small muted center" style="margin-top:14px">🔒 Token kokhono commit hoy na. Shudhu tomar device-e thake.</p>
+  </div>
+</section>
+
+<!-- ============ DASHBOARD ============ -->
+<section id="view-dash" class="wrap hidden">
+  <div class="admin-body">
+    <aside class="side">
+      <a href="#dash" class="on">📊 Dashboard</a>
+      <a href="#products">🛍️ Products</a>
+      <a href="#settings">⚙️ Store Settings</a>
+      <div class="sep"></div>
+      <a href="index.html">🌐 Live Site Dekhun</a>
+      <a href="#" id="gh-repo">📂 GitHub Repo</a>
+    </aside>
+
+    <div>
+      <div class="store-status" id="store-status">
+        <span class="dot"></span>
+        <div><b>Connected</b> - <span id="status-msg">products.json load hoyeche</span></div>
+      </div>
+
+      <div class="stat-grid" id="stats"></div>
+
+      <div id="dash">
+        <div class="panel" style="margin-bottom:22px">
+          <h3>Kivabe kaj kore?</h3>
+          <ol style="padding-left:20px;line-height:2;font-size:14.5px;color:var(--ink-2)">
+            <li><b>Products</b> tab-e gele tumi product add/edit/delete korte parbe - name, price, image, stock sob.</li>
+            <li><b>Save</b> dile change GitHub-e commit hoy, ar <b>~1 minute</b> por live site-e dekhte pabe.</li>
+            <li>Image upload dile se-ta automatically GitHub-e store hoy.</li>
+            <li>Customer der shudhu <b>dekhte ar kinte</b> somobhay - tader kono edit access nei.</li>
+          </ol>
+          <div class="note" style="margin-top:14px">💡 Product price real quote na - sample data. Tomar actual product er name, dam, image diye replace kore felun.</div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div id="products">
+        <div class="toolbar">
+          <input class="search" id="p-search" type="search" placeholder="🔍 Product search korun..."
+                 style="padding:11px 14px;border:2px solid var(--line);border-radius:10px;font-size:14px;outline:0">
+          <div style="display:flex;gap:9px;flex-wrap:wrap">
+            <button class="btn btn-ghost" id="btn-reload">⟳ Reload</button>
+            <button class="btn btn-accent" id="btn-add">＋ Notun Product</button>
+          </div>
+        </div>
+        <div class="tbl">
+          <table class="data">
+            <thead><tr>
+              <th>Image</th><th>Name</th><th>Category</th><th>Brand</th>
+              <th>Price</th><th>Stock</th><th>Status</th><th style="text-align:right">Actions</th>
+            </tr></thead>
+            <tbody id="p-tbody"><tr><td colspan="8"><div class="loader"><i></i></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="settings" style="margin-top:34px">
+        <div class="panel">
+          <h3>⚙️ Store Settings</h3>
+          <p class="muted small">Eigulo checkout page-e use hoy (email, WhatsApp, delivery charge).</p>
+          <div class="form-grid" style="margin-top:16px">
+            <div class="field"><label>Store Email (order ekhane ashbe)</label><input id="s-email"></div>
+            <div class="field"><label>WhatsApp Number (intl format)</label><input id="s-wa" placeholder="8801XXXXXXXXX"></div>
+            <div class="field"><label>Free Delivery Above (৳)</label><input id="s-freeth" type="number" min="0"></div>
+            <div class="field"><label>Delivery Charge (৳)</label><input id="s-ship" type="number" min="0"></div>
+            <div class="field"><label>VAT (%)</label><input id="s-vat" type="number" min="0" step="0.1"></div>
+          </div>
+          <button class="btn" id="btn-save-settings" style="margin-top:18px">💾 Settings Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRODUCT EDITOR MODAL ============ -->
+<div class="overlay" id="ed-modal">
+  <div class="modal" style="text-align:left;max-width:760px">
+    <h2 id="ed-title">Notun Product</h2>
+    <div class="editor" style="margin-top:18px">
+      <div>
+        <div class="img-drop" id="img-drop">
+          <img class="img-preview hidden" id="img-prev" alt="preview">
+          <div id="img-hint"><div class="ico">📷</div><p>Click kore image select korun<br><span class="small">(auto-resize hobe)</span></p></div>
+        </div>
+        <input type="file" id="img-file" accept="image/*" class="hidden">
+        <button class="btn btn-ghost btn-sm btn-block" id="img-clear" style="margin-top:8px">Image soriye felun</button>
+      </div>
+      <div class="form-grid">
+        <div class="field full"><label>Product Name <span class="req">*</span></label><input id="e-name" required></div>
+        <div class="field"><label>Category <span class="req">*</span></label>
+          <select id="e-cat">
+            <option>Food &amp; Groceries</option><option>Lubricants</option>
+            <option>Electrical</option><option>Home Appliance</option>
+            <option value="__new">＋ Notun category...</option>
+          </select></div>
+        <div class="field"><label>Sub Category</label><input id="e-sub" placeholder="e.g. Lights"></div>
+        <div class="field"><label>Brand</label><input id="e-brand" placeholder="e.g. Voltix"></div>
+        <div class="field"><label>Badge (optional)</label><input id="e-badge" placeholder="Best Seller / 10% OFF / New"></div>
+        <div class="field"><label>Price (৳) <span class="req">*</span></label><input id="e-price" type="number" min="0" required></div>
+        <div class="field"><label>Old Price (৳, strike-through)</label><input id="e-old" type="number" min="0" placeholder="0 = none"></div>
+        <div class="field"><label>Stock <span class="req">*</span></label><input id="e-stock" type="number" min="0" required></div>
+        <div class="field"><label>Rating (0-5)</label><input id="e-rating" type="number" min="0" max="5" step="0.1"></div>
+        <div class="field"><label>Reviews Count</label><input id="e-reviews" type="number" min="0"></div>
+        <div class="field full"><label>Description</label><textarea id="e-desc" placeholder="Product-tar about-e likhen"></textarea></div>
+        <div class="field full"><label>Specifications (prottek line: Key : Value)</label>
+          <textarea id="e-specs" placeholder="Wattage : 12 W&#10;Warranty : 1 year"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-acts" style="justify-content:flex-end;margin-top:22px">
+      <button class="btn btn-ghost" id="ed-cancel">Cancel</button>
+      <button class="btn btn-accent" id="ed-save">💾 Save to GitHub</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DELETE CONFIRM ============ -->
+<div class="overlay" id="del-modal">
+  <div class="modal">
+    <div class="tick" style="background:#FEE2E2;color:var(--danger)">🗑️</div>
+    <h2>Product muche felbo?</h2>
+    <p id="del-name"></p>
+    <div class="modal-acts">
+      <button class="btn btn-ghost" id="del-cancel">Na, thakuk</button>
+      <button class="btn btn-danger" id="del-ok">Ha, muche felun</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data-fallback.js"></script>
+<script>
+/* ============================================================
+   HaatKart Admin - GitHub Contents API based product manager
+   The token is kept in sessionStorage only. Never committed.
+   ============================================================ */
+const API = 'https://api.github.com';
+const DATA_PATH = 'js/products.json';
+const IMG_DIR = 'assets/img';
+
+const A = {
+  token: sessionStorage.getItem('hk_token') || '',
+  owner: sessionStorage.getItem('hk_owner') || '',
+  repo: sessionStorage.getItem('hk_repo') || '',
+  branch: 'main',
+  sha: null,
+  data: null,
+  editingId: null,
+  pendingImg: null,       // { dataUrl, base64, ext }
+  delId: null
+};
+
+/* ---------- API helpers ---------- */
+function apiHeaders() {
+  return {
+    'Authorization': 'Bearer ' + A.token,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+async function gh(path, method = 'GET', body) {
+  const res = await fetch(API + path, {
+    method,
+    headers: { ...apiHeaders(), ...(body ? { 'Content-Type': 'application/json' } : {}) },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) {
+    let msg = res.status + ' ' + res.statusText;
+    try { const j = await res.json(); if (j.message) msg += ' - ' + j.message; } catch {}
+    if (res.status === 401) msg += ' (Token invalid ba expired)';
+    if (res.status === 403) msg += ' (Permission nei - Contents: Read and write lagbe)';
+    if (res.status === 404) msg += ' (Repo ba file pawa jay nai - owner/repo spelling dekhun)';
+    throw new Error(msg);
+  }
+  return res.status === 204 ? null : res.json();
+}
+const repoBase = () => `/repos/${A.owner}/${A.repo}`;
+
+/* ---------- auto-detect owner/repo from Pages URL ---------- */
+function detectRepo() {
+  const h = location.hostname;
+  const seg = location.pathname.split('/').filter(Boolean);
+  let owner = '', repo = '';
+  if (h.endsWith('.github.io')) {
+    owner = h.replace('.github.io', '');
+    repo = seg[0] || owner;
+  } else if (h === 'localhost' || h === '127.0.0.1') {
+    // local preview - guess from folder name is unreliable, leave blank
+  }
+  return { owner, repo };
+}
+
+/* ---------- view switching ---------- */
+function show(view) {
+  document.getElementById('view-login').classList.toggle('hidden', view !== 'login');
+  document.getElementById('view-dash').classList.toggle('hidden', view !== 'dash');
+}
+
+/* ---------- login ---------- */
+async function login() {
+  A.owner = document.getElementById('in-owner').value.trim();
+  A.repo = document.getElementById('in-repo').value.trim();
+  A.token = document.getElementById('in-token').value.trim();
+  if (!A.owner || !A.repo || !A.token) { toast('Shob field fill up korun', 'err'); return; }
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'Verify hocche...';
+  try {
+    const me = await gh('/user');
+    sessionStorage.setItem('hk_token', A.token);
+    sessionStorage.setItem('hk_owner', A.owner);
+    sessionStorage.setItem('hk_repo', A.repo);
+    document.getElementById('whoami').textContent = '👤 ' + me.login;
+    document.getElementById('gh-repo').href = `https://github.com/${A.owner}/${A.repo}`;
+    show('dash');
+    await loadData();
+  } catch (err) {
+    toast(err.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Login korun';
+  }
+}
+
+/* ---------- load products.json from repo ---------- */
+async function loadData() {
+  setStatus(false, 'loading...');
+  try {
+    const file = await gh(`${repoBase()}/contents/${DATA_PATH}?ref=${A.branch}`);
+    A.sha = file.sha;
+    const json = JSON.parse(atob(file.content.replace(/\n/g, '')));
+    A.data = {
+      products: Array.isArray(json.products) ? json.products : [],
+      settings: json.settings || { email: 'hello@haatkart.com.bd', whatsapp: '8801700000000', freeAbove: 2000, shipFee: 80, vat: 5 }
+    };
+    setStatus(true, `products.json load hoyeche · ${A.data.products.length} ta product`);
+    fillSettings();
+    renderStats();
+    renderTable();
+  } catch (err) {
+    setStatus(false, 'load fail: ' + err.message);
+    toast('Data load korte parina: ' + err.message, 'err');
+  }
+}
+function setStatus(ok, msg) {
+  document.querySelector('#store-status .dot').className = 'dot' + (ok ? '' : ' off');
+  document.getElementById('status-msg').textContent = msg;
+}
+
+/* ---------- save products.json ---------- */
+async function saveData(message) {
+  const payload = {
+    _note: 'Managed by admin.html (HaatKart Admin). Manual edits are overwritten on next admin save.',
+    updated: new Date().toISOString().slice(0, 10),
+    settings: A.data.settings,
+    products: A.data.products
+  };
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+  const body = { message, content, branch: A.branch };
+  if (A.sha) body.sha = A.sha;
+  const res = await gh(`${repoBase()}/contents/${DATA_PATH}`, 'PUT', body);
+  A.sha = res.content.sha;
+  setStatus(true, 'last save: ' + new Date().toLocaleTimeString());
+  toast(message + ' - GitHub-e commit hoye gelo ✓', 'ok');
+  return res;
+}
+
+/* ---------- image handling ---------- */
+function readImage(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const max = 900;
+        let { width: w, height: h } = img;
+        if (w > max || h > max) { const s = max / Math.max(w, h); w = Math.round(w * s); h = Math.round(h * s); }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        const dataUrl = c.toDataURL('image/jpeg', 0.82);
+        resolve({ dataUrl, base64: dataUrl.split(',')[1], ext: 'jpg' });
+      };
+      img.onerror = reject;
+      img.src = r.result;
+    };
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+async function uploadImage(id, img) {
+  const path = `${IMG_DIR}/${id}.${img.ext}`;
+  const res = await gh(`${repoBase()}/contents/${path}`, 'PUT', {
+    message: `admin: add image for ${id}`,
+    content: img.base64,
+    branch: A.branch
+  });
+  return `https://raw.githubusercontent.com/${A.owner}/${A.repo}/${A.branch}/${path}?v=${res.content.sha.slice(0, 7)}`;
+}
+
+/* ---------- render ---------- */
+function renderStats() {
+  const P = A.data.products;
+  const low = P.filter(p => p.stock > 0 && p.stock <= 20).length;
+  const out = P.filter(p => p.stock <= 0).length;
+  const imgs = P.filter(p => p.img).length;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="ico">🛍️</div><b>${P.length}</b><span>Total Product</span></div>
+    <div class="stat"><div class="ico">⚠️</div><b>${low}</b><span>Low Stock (≤20)</span></div>
+    <div class="stat"><div class="ico">🚫</div><b>${out}</b><span>Out of Stock</span></div>
+    <div class="stat"><div class="ico">🖼️</div><b>${imgs}</b><span>Image Added</span></div>`;
+}
+
+function renderTable() {
+  const q = (document.getElementById('p-search').value || '').toLowerCase();
+  const list = A.data.products.filter(p =>
+    !q || (p.name + ' ' + p.cat + ' ' + (p.brand || '')).toLowerCase().includes(q));
+  const tb = document.getElementById('p-tbody');
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="8"><div class="empty" style="border:0"><div class="ico">📭</div>
+      <h3>${q ? 'Search-e kichu millo na' : 'Ekta o product nei'}</h3>
+      <p>${q ? 'Onno keyword try korun.' : 'Notun Product button diye prothom product add korun.'}</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = list.map(p => `
+    <tr>
+      <td><div class="tbl-thumb">${p.img ? `<img src="${esc(p.img)}" alt="">` : catIcon(p.cat)}</div></td>
+      <td><b style="color:var(--ink)">${esc(p.name)}</b><br><span class="small muted">${esc(p.sub || '')}</span></td>
+      <td>${esc(p.cat)}</td>
+      <td>${esc(p.brand || '-')}</td>
+      <td><b class="tk">${Number(p.price).toLocaleString('en-BD')}</b>
+        ${p.old > p.price ? `<br><span class="small muted old tk" style="margin:0">${Number(p.old).toLocaleString('en-BD')}</span>` : ''}</td>
+      <td>${p.stock}</td>
+      <td>${p.stock <= 0 ? '<span class="pill no">Out</span>' :
+            p.stock <= 20 ? '<span class="pill neutral">Low</span>' : '<span class="pill ok">In stock</span>'}</td>
+      <td style="text-align:right"><div class="row-acts" style="justify-content:flex-end">
+        <button class="icon-btn" data-edit="${esc(p.id)}" title="Edit">✏️</button>
+        <button class="icon-btn del" data-del="${esc(p.id)}" title="Delete">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+/* ---------- settings ---------- */
+function fillSettings() {
+  const s = A.data.settings;
+  document.getElementById('s-email').value = s.email || '';
+  document.getElementById('s-wa').value = s.whatsapp || '';
+  document.getElementById('s-freeth').value = s.freeAbove ?? 2000;
+  document.getElementById('s-ship').value = s.shipFee ?? 80;
+  document.getElementById('s-vat').value = s.vat ?? 5;
+}
+async function saveSettings() {
+  A.data.settings = {
+    email: document.getElementById('s-email').value.trim(),
+    whatsapp: document.getElementById('s-wa').value.trim(),
+    freeAbove: Number(document.getElementById('s-freeth').value) || 0,
+    shipFee: Number(document.getElementById('s-ship').value) || 0,
+    vat: Number(document.getElementById('s-vat').value) || 0
+  };
+  await saveData('admin: update store settings');
+}
+
+/* ---------- editor ---------- */
+function parseSpecs(text) {
+  const o = {};
+  (text || '').split('\n').forEach(line => {
+    const i = line.indexOf(':');
+    if (i > 0) o[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+  });
+  return o;
+}
+function specsToText(specs) {
+  return Object.entries(specs || {}).map(([k, v]) => `${k} : ${v}`).join('\n');
+}
+
+function openEditor(id) {
+  A.editingId = id || null;
+  A.pendingImg = null;
+  const p = id ? A.data.products.find(x => x.id === id) : null;
+  document.getElementById('ed-title').textContent = p ? 'Product Edit korun' : 'Notun Product';
+  document.getElementById('e-name').value = p?.name || '';
+  document.getElementById('e-cat').value = p?.cat || 'Food & Groceries';
+  document.getElementById('e-sub').value = p?.sub || '';
+  document.getElementById('e-brand').value = p?.brand || '';
+  document.getElementById('e-badge').value = p?.badge || '';
+  document.getElementById('e-price').value = p?.price ?? '';
+  document.getElementById('e-old').value = p?.old || 0;
+  document.getElementById('e-stock').value = p?.stock ?? 100;
+  document.getElementById('e-rating').value = p?.rating ?? 4.5;
+  document.getElementById('e-reviews').value = p?.reviews ?? 0;
+  document.getElementById('e-desc').value = p?.desc || '';
+  document.getElementById('e-specs').value = specsToText(p?.specs);
+
+  const prev = document.getElementById('img-prev');
+  const hint = document.getElementById('img-hint');
+  if (p?.img) { prev.src = p.img; prev.classList.remove('hidden'); hint.classList.add('hidden'); }
+  else { prev.classList.add('hidden'); hint.classList.remove('hidden'); }
+
+  document.getElementById('ed-modal').classList.add('on');
+}
+
+async function saveEditor() {
+  const name = document.getElementById('e-name').value.trim();
+  const price = Number(document.getElementById('e-price').value);
+  const stock = Number(document.getElementById('e-stock').value);
+  let cat = document.getElementById('e-cat').value;
+
+  if (cat === '__new') {
+    cat = prompt('Notun category-r naam likhen:');
+    if (!cat || !cat.trim()) { toast('Category lagbei dorkar', 'err'); return; }
+    cat = cat.trim();
+  }
+  if (!name || !price || isNaN(price) || isNaN(stock)) {
+    toast('Name, Price ar Stock lagbei dorkar', 'err'); return;
+  }
+
+  const btn = document.getElementById('ed-save');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    let id = A.editingId;
+    const isNew = !id;
+    if (isNew) {
+      id = (name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 34) || 'item')
+           + '-' + Math.random().toString(36).slice(2, 5);
+    }
+    const existing = isNew ? null : A.data.products.find(x => x.id === id);
+
+    // image: new upload, else keep old
+    let img = existing?.img || null;
+    if (A.pendingImg) {
+      const url = await uploadImage(id, A.pendingImg);
+      img = url;
+    }
+
+    const rec = {
+      id,
+      name,
+      cat,
+      sub: document.getElementById('e-sub').value.trim(),
+      brand: document.getElementById('e-brand').value.trim(),
+      price,
+      old: Number(document.getElementById('e-old').value) || 0,
+      stock,
+      badge: document.getElementById('e-badge').value.trim(),
+      rating: Number(document.getElementById('e-rating').value) || 0,
+      reviews: Number(document.getElementById('e-reviews').value) || 0,
+      img,
+      desc: document.getElementById('e-desc').value.trim(),
+      specs: parseSpecs(document.getElementById('e-specs').value)
+    };
+
+    if (isNew) A.data.products.push(rec);
+    else Object.assign(existing, rec);
+
+    await saveData(`admin: ${isNew ? 'add' : 'update'} product ${name}`);
+    document.getElementById('ed-modal').classList.remove('on');
+    renderStats(); renderTable();
+  } catch (err) {
+    toast('Save fail: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Save to GitHub';
+  }
+}
+
+async function deleteProduct() {
+  const p = A.data.products.find(x => x.id === A.delId);
+  if (!p) return;
+  const btn = document.getElementById('del-ok');
+  btn.disabled = true; btn.textContent = 'Deleting...';
+  try {
+    A.data.products = A.data.products.filter(x => x.id !== A.delId);
+    await saveData(`admin: delete product ${p.name}`);
+    document.getElementById('del-modal').classList.remove('on');
+    renderStats(); renderTable();
+  } catch (err) {
+    toast('Delete fail: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Ha, muche felun';
+  }
+}
+
+/* ---------- events ---------- */
+document.getElementById('btn-login').onclick = login;
+document.getElementById('logout').onclick = () => {
+  sessionStorage.clear();
+  location.reload();
+};
+document.getElementById('btn-reload').onclick = loadData;
+document.getElementById('btn-add').onclick = () => openEditor(null);
+document.getElementById('btn-save-settings').onclick = saveSettings;
+document.getElementById('p-search').oninput = renderTable;
+
+document.getElementById('p-tbody').addEventListener('click', e => {
+  const ed = e.target.closest('[data-edit]');
+  if (ed) return openEditor(ed.dataset.edit);
+  const dl = e.target.closest('[data-del]');
+  if (dl) {
+    A.delId = dl.dataset.del;
+    const p = A.data.products.find(x => x.id === A.delId);
+    document.getElementById('del-name').textContent = p ? p.name : '';
+    document.getElementById('del-modal').classList.add('on');
+  }
+});
+
+document.getElementById('ed-cancel').onclick = () => document.getElementById('ed-modal').classList.remove('on');
+document.getElementById('ed-save').onclick = saveEditor;
+document.getElementById('del-cancel').onclick = () => document.getElementById('del-modal').classList.remove('on');
+document.getElementById('del-ok').onclick = deleteProduct;
+
+// image picker
+document.getElementById('img-drop').onclick = () => document.getElementById('img-file').click();
+document.getElementById('img-file').onchange = async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    A.pendingImg = await readImage(f);
+    const prev = document.getElementById('img-prev');
+    prev.src = A.pendingImg.dataUrl;
+    prev.classList.remove('hidden');
+    document.getElementById('img-hint').classList.add('hidden');
+    toast('Image ready - Save korle upload hobe', 'ok');
+  } catch { toast('Image pora jay nai', 'err'); }
+};
+document.getElementById('img-clear').onclick = () => {
+  A.pendingImg = null;
+  if (!A.editingId) {
+    document.getElementById('img-prev').classList.add('hidden');
+    document.getElementById('img-hint').classList.remove('hidden');
+  }
+  document.getElementById('img-file').value = '';
+};
+
+// close modals on overlay click
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('on'); });
+});
+
+/* ---------- boot ---------- */
+(function init() {
+  const d = detectRepo();
+  document.getElementById('in-owner').value = A.owner || d.owner || '';
+  document.getElementById('in-repo').value = A.repo || d.repo || '';
+  if (A.token && A.owner && A.repo) {
+    document.getElementById('in-token').value = A.token;
+    login();
+  }
+})();
+</script>
+</body>
+</html>

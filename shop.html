@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>All Products - HaatKart</title>
+<meta name="description" content="Browse all products at HaatKart - groceries, lubricants, electrical and home appliances.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230B7A5B'/><text x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>H</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header id="site-header"></header>
+
+<section class="page-head">
+  <div class="wrap">
+    <h1 id="page-title">All Products</h1>
+    <div class="crumbs"><a href="index.html">Home</a><span>/</span><span id="crumb-now">All Products</span></div>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="shop">
+    <!-- FILTERS -->
+    <aside class="filters" aria-label="Filters">
+      <div class="filter-group">
+        <h4>Category</h4>
+        <div id="f-cat"></div>
+      </div>
+      <div class="filter-group">
+        <h4>Sub Category</h4>
+        <div id="f-sub"></div>
+      </div>
+      <div class="filter-group">
+        <h4>Brand</h4>
+        <div id="f-brand"></div>
+      </div>
+      <div class="filter-group">
+        <h4>Maximum Price</h4>
+        <input class="range" type="range" id="f-price" min="0" max="8000" step="50" value="8000">
+        <div class="range-val"><span>৳0</span><span id="price-out">৳8,000</span></div>
+      </div>
+      <div class="filter-group">
+        <label class="check"><input type="checkbox" id="f-stock"> <span>In-stock only</span></label>
+        <label class="check"><input type="checkbox" id="f-offer"> <span>Offer products</span></label>
+      </div>
+      <button class="btn btn-ghost btn-block btn-sm" id="f-reset">Filters reset korun</button>
+    </aside>
+
+    <!-- RESULTS -->
+    <div>
+      <div class="shop-bar">
+        <div class="count"><b id="n-count">0</b> ta product pawa gelo</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <label class="small muted" for="sort">Sort:</label>
+          <select class="sel" id="sort">
+            <option value="default">Default</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Top Rated</option>
+            <option value="name">Name A-Z</option>
+          </select>
+        </div>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="grid" id="results"><div class="loader"><i></i></div></div>
+      <div class="load-more hidden" id="load-more"><button class="btn btn-ghost">Aro product dekhun</button></div>
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="js/data-fallback.js"></script>
+<script src="js/app.js"></script>
+<script>
+const state = {
+  cat: qs('cat') || '',
+  sub: qs('sub') || '',
+  q: qs('q') || '',
+  brands: [],
+  maxPrice: 8000,
+  inStock: false,
+  offer: false,
+  sort: qs('sort') || 'default',
+  shown: 12
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const P = await loadProducts();
+
+  const sortEl = document.getElementById('sort');
+  if (state.sort !== 'default') sortEl.value = state.sort;
+
+  // build filter options from data
+  const cats = [...new Set(P.map(p => p.cat))].sort();
+  const brands = [...new Set(P.map(p => p.brand).filter(Boolean))].sort();
+  const maxData = Math.max(1000, ...P.map(p => p.price || 0));
+  state.maxPrice = Math.ceil(maxData / 500) * 500;
+  const range = document.getElementById('f-price');
+  range.max = state.maxPrice;
+  range.value = state.maxPrice;
+  document.getElementById('price-out').textContent = money(state.maxPrice);
+
+  document.getElementById('f-cat').innerHTML = cats.map(c =>
+    `<label class="check"><input type="radio" name="cat" value="${esc(c)}" ${state.cat === c ? 'checked' : ''}>
+      <span>${esc(c)}</span><span class="n">${P.filter(p => p.cat === c).length}</span></label>`).join('')
+    || '<p class="small muted">No categories</p>';
+
+  document.getElementById('f-brand').innerHTML = brands.map(b =>
+    `<label class="check"><input type="checkbox" name="brand" value="${esc(b)}">
+      <span>${esc(b)}</span><span class="n">${P.filter(p => p.brand === b).length}</span></label>`).join('');
+
+  function renderSubs() {
+    const subs = [...new Set(P.filter(p => !state.cat || p.cat === state.cat).map(p => p.sub).filter(Boolean))].sort();
+    document.getElementById('f-sub').innerHTML = subs.length
+      ? subs.map(s => `<label class="check"><input type="radio" name="sub" value="${esc(s)}" ${state.sub === s ? 'checked' : ''}>
+          <span>${esc(s)}</span><span class="n">${P.filter(p => p.sub === s).length}</span></label>`).join('')
+      : '<p class="small muted">No sub-categories</p>';
+  }
+  renderSubs();
+
+  function apply() {
+    let list = [...P];
+    if (state.cat) list = list.filter(p => p.cat === state.cat);
+    if (state.sub) list = list.filter(p => p.sub === state.sub);
+    if (state.brands.length) list = list.filter(p => state.brands.includes(p.brand));
+    list = list.filter(p => (p.price || 0) <= state.maxPrice);
+    if (state.inStock) list = list.filter(p => p.stock > 0);
+    if (state.offer) list = list.filter(p => p.old > p.price);
+    if (state.q) {
+      const t = state.q.toLowerCase();
+      list = list.filter(p =>
+        (p.name + ' ' + p.cat + ' ' + (p.sub||'') + ' ' + (p.brand||'') + ' ' + (p.desc||'')).toLowerCase().includes(t));
+    }
+    switch (state.sort) {
+      case 'price-asc': list.sort((a,b) => a.price - b.price); break;
+      case 'price-desc': list.sort((a,b) => b.price - a.price); break;
+      case 'rating': list.sort((a,b) => (b.rating||0) - (a.rating||0)); break;
+      case 'name': list.sort((a,b) => a.name.localeCompare(b.name)); break;
+    }
+    return list;
+  }
+
+  function chips() {
+    const c = [];
+    if (state.cat) c.push(['cat', 'Category: ' + state.cat]);
+    if (state.sub) c.push(['sub', 'Sub: ' + state.sub]);
+    state.brands.forEach(b => c.push(['brand:' + b, 'Brand: ' + b]));
+    if (state.maxPrice < Math.ceil(maxData / 500) * 500) c.push(['price', 'Max ' + money(state.maxPrice)]);
+    if (state.inStock) c.push(['stock', 'In-stock only']);
+    if (state.offer) c.push(['offer', 'Offer only']);
+    if (state.q) c.push(['q', 'Search: "' + state.q + '"']);
+    document.getElementById('chips').innerHTML = c.map(([k, l]) =>
+      `<span class="chip">${esc(l)}<button data-clear="${esc(k)}" aria-label="Remove">×</button></span>`).join('');
+  }
+
+  function render() {
+    const list = apply();
+    document.getElementById('n-count').textContent = list.length;
+    document.getElementById('results').innerHTML = gridHTML(list.slice(0, state.shown));
+    document.getElementById('load-more').classList.toggle('hidden', list.length <= state.shown);
+    // page title + breadcrumb
+    const title = state.q ? 'Search: ' + state.q : (state.sub || state.cat || 'All Products');
+    document.getElementById('page-title').textContent = title;
+    document.getElementById('crumb-now').textContent = title;
+    document.title = title + ' - HaatKart';
+    chips();
+    observeReveals();
+  }
+
+  // events
+  document.getElementById('f-cat').addEventListener('change', e => {
+    state.cat = e.target.value; state.sub = ''; renderSubs(); state.shown = 12; render();
+  });
+  document.getElementById('f-sub').addEventListener('change', e => {
+    state.sub = e.target.value; state.shown = 12; render();
+  });
+  document.getElementById('f-brand').addEventListener('change', () => {
+    state.brands = [...document.querySelectorAll('input[name="brand"]:checked')].map(i => i.value);
+    state.shown = 12; render();
+  });
+  range.addEventListener('input', () => {
+    state.maxPrice = Number(range.value);
+    document.getElementById('price-out').textContent = money(state.maxPrice);
+    render();
+  });
+  document.getElementById('f-stock').addEventListener('change', e => { state.inStock = e.target.checked; render(); });
+  document.getElementById('f-offer').addEventListener('change', e => { state.offer = e.target.checked; render(); });
+  sortEl.addEventListener('change', () => { state.sort = sortEl.value; render(); });
+  document.getElementById('load-more').addEventListener('click', () => { state.shown += 12; render(); });
+  document.getElementById('f-reset').addEventListener('click', () => {
+    state.cat = ''; state.sub = ''; state.brands = []; state.q = '';
+    state.inStock = false; state.offer = false; state.shown = 12;
+    state.maxPrice = Math.ceil(maxData / 500) * 500;
+    range.value = state.maxPrice;
+    document.getElementById('price-out').textContent = money(state.maxPrice);
+    document.getElementById('f-stock').checked = false;
+    document.getElementById('f-offer').checked = false;
+    document.querySelectorAll('input[name="cat"],input[name="brand"]').forEach(i => i.checked = false);
+    renderSubs(); render();
+    history.replaceState(null, '', 'shop.html');
+  });
+  document.getElementById('chips').addEventListener('click', e => {
+    const b = e.target.closest('[data-clear]'); if (!b) return;
+    const k = b.dataset.clear;
+    if (k === 'cat') { state.cat = ''; state.sub = ''; document.querySelectorAll('input[name="cat"]').forEach(i => i.checked = false); renderSubs(); }
+    else if (k === 'sub') { state.sub = ''; document.querySelectorAll('input[name="sub"]').forEach(i => i.checked = false); }
+    else if (k.startsWith('brand:')) {
+      const v = k.slice(6);
+      state.brands = state.brands.filter(x => x !== v);
+      document.querySelectorAll('input[name="brand"]').forEach(i => { if (i.value === v) i.checked = false; });
+    }
+    else if (k === 'price') { state.maxPrice = Math.ceil(maxData / 500) * 500; range.value = state.maxPrice; document.getElementById('price-out').textContent = money(state.maxPrice); }
+    else if (k === 'stock') { state.inStock = false; document.getElementById('f-stock').checked = false; }
+    else if (k === 'offer') { state.offer = false; document.getElementById('f-offer').checked = false; }
+    else if (k === 'q') { state.q = ''; }
+    render();
+  });
+
+  render();
+});
+</script>
+</body>
+</html>

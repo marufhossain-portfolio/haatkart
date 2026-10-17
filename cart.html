@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shopping Cart - HaatKart</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230B7A5B'/><text x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>H</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header id="site-header"></header>
+
+<section class="page-head">
+  <div class="wrap">
+    <h1>Shopping Cart</h1>
+    <div class="crumbs"><a href="index.html">Home</a><span>/</span><span>Cart</span></div>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="cart-layout">
+    <div id="cart-host"><div class="loader"><i></i></div></div>
+    <aside id="sum-host"></aside>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="js/data-fallback.js"></script>
+<script src="js/app.js"></script>
+<script>
+const COUPONS = { 'HAAT10': 0.10, 'WELCOME50': 0.05, 'FREESHIP': 0 };
+let appliedCoupon = store.get('hk_coupon', null);
+
+function shippingFor(sub) {
+  const s = HK.settings;
+  return sub === 0 ? 0 : (sub >= s.freeAbove ? 0 : s.shipFee);
+}
+
+function render() {
+  const lines = Cart.lines();
+  const host = document.getElementById('cart-host');
+  const sum = document.getElementById('sum-host');
+
+  if (!lines.length) {
+    host.innerHTML = `<div class="empty"><div class="ico">🛒</div>
+      <h3>Tomar cart khali</h3>
+      <p>Dekhun - amader 35+ product, shob 100% authentic.</p>
+      <a class="btn btn-lg" href="shop.html" style="margin-top:16px">🛍️ Kinte Shuru Korun</a></div>`;
+    sum.innerHTML = '';
+    Cart.badge();
+    return;
+  }
+
+  const sub = Cart.subtotal();
+  const disc = appliedCoupon && COUPONS[appliedCoupon] ? sub * COUPONS[appliedCoupon] : 0;
+  const ship = shippingFor(sub - disc);
+  const vat = (sub - disc) * (HK.settings.vat / 100);
+  const total = sub - disc + ship + vat;
+
+  host.innerHTML = `
+  <div class="cart-table">
+    <div class="cart-row head">
+      <div>Product</div><div>Description</div><div>Price</div><div>Quantity</div><div style="text-align:right">Total</div>
+    </div>
+    ${lines.map(i => `
+    <div class="cart-row">
+      <a class="cart-thumb" href="product.html?id=${encodeURIComponent(i.id)}">${productImg(i.p)}</a>
+      <div>
+        <a class="cart-name" href="product.html?id=${encodeURIComponent(i.id)}">${esc(i.p.name)}
+          <small>${esc(i.p.brand || '')} · ${esc(i.p.cat)}</small></a>
+        <button class="rm" data-remove="${esc(i.id)}" title="Remove" style="margin-top:6px;padding:3px 8px">🗑️ Remove</button>
+      </div>
+      <div class="price cell-price tk">${Number(i.p.price).toLocaleString('en-BD')}</div>
+      <div>
+        <div class="qty">
+          <button data-q="${esc(i.id)}" data-d="-1" aria-label="Decrease">−</button>
+          <input type="number" value="${i.qty}" min="1" max="${i.p.stock}" data-qi="${esc(i.id)}" aria-label="Qty">
+          <button data-q="${esc(i.id)}" data-d="1" aria-label="Increase">+</button>
+        </div>
+      </div>
+      <div class="price tk" style="text-align:right">${Number(i.p.price * i.qty).toLocaleString('en-BD')}</div>
+    </div>`).join('')}
+  </div>
+  <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap">
+    <a class="btn btn-ghost" href="shop.html">← Shopping continue korun</a>
+    <button class="btn btn-danger" id="clear-cart">Cart khali korun</button>
+  </div>`;
+
+  sum.innerHTML = `
+  <div class="summary">
+    <h3>Order Summary</h3>
+    <div class="sum-row"><span>Subtotal (${Cart.count()} items)</span><b class="tk">${sub.toLocaleString('en-BD')}</b></div>
+    ${disc ? `<div class="sum-row" style="color:var(--success)"><span>Coupon: ${esc(appliedCoupon)}</span><b class="tk">−${Math.round(disc).toLocaleString('en-BD')}</b></div>` : ''}
+    <div class="sum-row"><span>Delivery charge</span><b>${ship === 0 ? '<span style="color:var(--success)">Free</span>' : '<span class="tk">' + ship + '</span>'}</b></div>
+    <div class="sum-row"><span>VAT (${HK.settings.vat}%)</span><b class="tk">${Math.round(vat).toLocaleString('en-BD')}</b></div>
+    <div class="sum-total"><span>Total</span><span class="tk">${Math.round(total).toLocaleString('en-BD')}</span></div>
+    <div class="coupon">
+      <input type="text" id="coupon-in" placeholder="Coupon code" value="${esc(appliedCoupon || '')}">
+      <button class="btn btn-sm" id="coupon-btn">Apply</button>
+    </div>
+    <p class="small muted" style="margin:0 0 14px">Try: HAAT10 · WELCOME50 · FREESHIP</p>
+    <a class="btn btn-lg btn-block" href="checkout.html">Checkout-e Jan →</a>
+    ${ship > 0 ? `<div class="note">🚚 <b>${money(HK.settings.freeAbove - (sub - disc))}</b> ar juklei delivery <b>FREE</b> hobe.</div>` :
+      `<div class="note">🎉 Delivery <b>FREE</b> hoye geche!</div>`}
+    <div class="note" style="background:#FFFBEB;border-color:#FDE68A;color:#92400E">🔒 Ei demo-te real payment nei. Order tomar device-e save hoy, r confirmation-e mail/WhatsApp diye pathano jabe.</div>
+  </div>`;
+
+  Cart.badge();
+}
+
+document.addEventListener('click', e => {
+  const q = e.target.closest('[data-q]');
+  if (q) {
+    const row = Cart.all().find(i => i.id === q.dataset.q);
+    if (row) Cart.setQty(row.id, row.qty + Number(q.dataset.d));
+    render();
+    return;
+  }
+  if (e.target.id === 'clear-cart') {
+    if (confirm('Cart-e sob item muiye felbo?')) { Cart.clear(); appliedCoupon = null; store.set('hk_coupon', null); render(); }
+    return;
+  }
+  if (e.target.id === 'coupon-btn') {
+    const v = document.getElementById('coupon-in').value.trim().toUpperCase();
+    if (!v) { toast('Coupon code likhen', 'err'); return; }
+    if (COUPONS[v] === undefined) { toast('Ei coupon code valid na', 'err'); return; }
+    appliedCoupon = v; store.set('hk_coupon', v);
+    toast('Coupon apply hoye gelo!', 'ok');
+    render();
+  }
+});
+
+document.addEventListener('change', e => {
+  const qi = e.target.closest('[data-qi]');
+  if (qi) { Cart.setQty(qi.dataset.qi, qi.value); render(); }
+});
+
+document.addEventListener('DOMContentLoaded', async () => { await loadProducts(); render(); });
+document.addEventListener('cart:change', () => { if (HK.loaded) render(); });
+</script>
+</body>
+</html>
