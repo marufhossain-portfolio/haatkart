@@ -750,6 +750,22 @@
         "Control": "Thermostatic",
         "Warranty": "1 year"
       }
+    },
+    {
+      "id": "zz-test-delete-me-qcv",
+      "name": "ZZ TEST DELETE ME",
+      "cat": "Electrical",
+      "sub": "",
+      "brand": "TestBrand",
+      "price": 99,
+      "old": 0,
+      "stock": 5,
+      "badge": "",
+      "rating": 4.5,
+      "reviews": 0,
+      "img": null,
+      "desc": "temporary product for delete test",
+      "specs": {}
     }
   ]
 }
