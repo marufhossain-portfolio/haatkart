@@ -186,6 +186,7 @@
 </div>
 
 <script src="js/data-fallback.js"></script>
+<script src="js/app.js"></script>
 <script>
 /* ============================================================
    HaatKart Admin - GitHub Contents API based product manager
@@ -431,6 +432,7 @@ function specsToText(specs) {
 function openEditor(id) {
   A.editingId = id || null;
   A.pendingImg = null;
+  A.imgRemove = false;
   const p = id ? A.data.products.find(x => x.id === id) : null;
   document.getElementById('ed-title').textContent = p ? 'Product Edit korun' : 'Notun Product';
   document.getElementById('e-name').value = p?.name || '';
@@ -480,9 +482,11 @@ async function saveEditor() {
     }
     const existing = isNew ? null : A.data.products.find(x => x.id === id);
 
-    // image: new upload, else keep old
+    // image: new upload, keep old, or explicit removal
     let img = existing?.img || null;
-    if (A.pendingImg) {
+    if (A.imgRemove) {
+      img = null;
+    } else if (A.pendingImg) {
       const url = await uploadImage(id, A.pendingImg);
       img = url;
     }
@@ -578,11 +582,11 @@ document.getElementById('img-file').onchange = async e => {
 };
 document.getElementById('img-clear').onclick = () => {
   A.pendingImg = null;
-  if (!A.editingId) {
-    document.getElementById('img-prev').classList.add('hidden');
-    document.getElementById('img-hint').classList.remove('hidden');
-  }
+  A.imgRemove = true;
+  document.getElementById('img-prev').classList.add('hidden');
+  document.getElementById('img-hint').classList.remove('hidden');
   document.getElementById('img-file').value = '';
+  toast('Image save korle muche jabe');
 };
 
 // close modals on overlay click
