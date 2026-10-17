@@ -1,12 +1,12 @@
 ﻿/* Auto-generated fallback so the site also works when opened directly (file://) or offline.
    Source of truth is js/products.json - admin panel edits that file. */
-const FALLBACK_SETTINGS = {"email":"hello@haatkart.com.bd","whatsapp":"8801700000000","freeAbove":2000,"shipFee":80,"vat":5};
+const FALLBACK_SETTINGS = {"email":"marufhossain2707@gmail.com","whatsapp":"8801788823451","freeAbove":2000,"shipFee":80,"vat":5};
 const FALLBACK_PRODUCTS = {
   "_note": "SAMPLE data - replace name/price/image via the Admin panel. Prices are placeholders, not real quotes.",
   "updated": "2026-10-17",
   "settings": {
-    "email": "hello@haatkart.com.bd",
-    "whatsapp": "8801700000000",
+    "email": "marufhossain2707@gmail.com",
+    "whatsapp": "8801788823451",
     "freeAbove": 2000,
     "shipFee": 80,
     "vat": 5

@@ -10,7 +10,7 @@ const HK = {
   products: [],
   loaded: false,
   source: 'loading',
-  settings: { email: 'hello@haatkart.com.bd', whatsapp: '8801700000000', freeAbove: 2000, shipFee: 80, vat: 5 }
+  settings: { email: 'marufhossain2707@gmail.com', whatsapp: '8801788823451', freeAbove: 2000, shipFee: 80, vat: 5 }
 };
 
 /* ---------- storage helpers ---------- */
@@ -44,6 +44,16 @@ function orderId() {
   const p = n => String(n).padStart(2, '0');
   return 'HK' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) +
          '-' + String(Math.floor(1000 + Math.random() * 9000));
+}
+
+/* ---------- settings ---------- */
+function applySettings() {
+  const s = HK.settings;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.textContent = val; };
+  set('foot-email', s.email);
+  set('foot-wa', s.whatsapp ? '+' + String(s.whatsapp).replace(/^\+/, '') : '');
+  // topbar + footer phone lines that mention the free-delivery threshold
+  document.querySelectorAll('[data-free-above]').forEach(el => { el.textContent = money(s.freeAbove); });
 }
 
 /* ---------- toast ---------- */
@@ -217,7 +227,7 @@ function mountHeader() {
   host.innerHTML = `
   <div class="topbar">
     <div class="wrap">
-      <div>🚚 <b>Free delivery</b> - ৳2,000 er upore Dhaka city-wide</div>
+      <div>🚚 <b>Free delivery</b> - <span data-free-above>৳2,000</span> er upore Dhaka city-wide</div>
       <div>🕐 Service: Saturday-Thursday, 9:00 AM - 6:00 PM &nbsp;|&nbsp; 📞 <b>08000-555777</b> (Toll Free)</div>
     </div>
   </div>
@@ -316,7 +326,8 @@ function mountFooter() {
           <h4>Contact</h4>
           <ul class="foot-contact">
             <li><span>📞</span><div><b style="color:#fff">08000-555777</b><br>Toll Free</div></li>
-            <li><span>✉️</span><div>hello@haatkart.com.bd</div></li>
+            <li><span>✉️</span><div id="foot-email">hello@haatkart.com.bd</div></li>
+            <li><span>💬</span><div>WhatsApp: <b style="color:#fff" id="foot-wa">-</b></div></li>
             <li><span>📍</span><div>Bashundhara R/A,<br>Dhaka 1229, Bangladesh</div></li>
             <li><span>🕐</span><div>Sat-Thu, 9:00 AM - 6:00 PM</div></li>
           </ul>
@@ -396,6 +407,7 @@ async function loadProducts() {
     }
   }
   HK.loaded = true;
+  applySettings();
   return HK.products;
 }
 
@@ -403,6 +415,7 @@ async function loadProducts() {
 document.addEventListener('DOMContentLoaded', () => {
   mountHeader();
   mountFooter();
+  applySettings();
   Cart.badge();
   observeReveals();
 });
